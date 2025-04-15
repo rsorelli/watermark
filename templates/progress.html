@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Processing Images...</title>
+    <style>
+        #progress-container {
+            width: 100%;
+            background-color: #ddd;
+            height: 30px;
+            margin: 20px 0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            transition: width 0.4s ease;
+        }
+        #download, #return-button {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Processing your images...</h1>
+    <div id="progress-container">
+        <div id="progress-bar">0%</div>
+    </div>
+    <p id="status">Progress: 0%</p>
+
+    <p id="download">
+        <a id="download-link" href="#" download>📦 Download your images</a>
+    </p>
+
+    <button id="return-button" onclick="window.location.href='/'">⬅️ Return to Upload Page</button>
+
+    <script>
+        const sessionId = "{{ session_id }}";
+        const statusEl = document.getElementById("status");
+        const downloadEl = document.getElementById("download");
+        const downloadLink = document.getElementById("download-link");
+        const progressBar = document.getElementById("progress-bar");
+        const returnButton = document.getElementById("return-button");
+
+        async function checkProgress() {
+            try {
+                const response = await fetch(`/progress/${sessionId}`);
+                const data = await response.json();
+
+                if (data.status === "not_found") {
+                    statusEl.textContent = "Session not found.";
+                    return;
+                }
+
+                const progress = Math.round((data.done / data.total) * 100);
+                statusEl.textContent = `Progress: ${progress}%`;
+                progressBar.style.width = `${progress}%`;
+                progressBar.textContent = `${progress}%`;
+
+                if (data.zip) {
+                    downloadLink.href = data.zip;
+                    downloadEl.style.display = "block";
+                    returnButton.style.display = "inline-block";
+                    statusEl.textContent = "✅ Processing complete!";
+                    progressBar.style.backgroundColor = "#2196F3";
+                } else {
+                    setTimeout(checkProgress, 1000);
+                }
+            } catch (error) {
+                statusEl.textContent = "Error checking progress.";
+                console.error(error);
+            }
+        }
+
+        checkProgress();
+    </script>
+</body>
+</html>

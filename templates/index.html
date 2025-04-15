@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watermark App</title>
+    <script>
+        function toggleOptions() {
+            document.getElementById("watermark-options").style.display =
+                document.getElementById("apply_watermark").checked ? "block" : "none";
+
+            document.getElementById("resize-options").style.display =
+                document.getElementById("reduce_size").checked ? "block" : "none";
+        }
+    </script>
+</head>
+<body onload="toggleOptions()">
+    <h1>Upload Images and Add a Watermark</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <label>Select Images or Folder:</label><br>
+        <input type="file" name="photos" multiple webkitdirectory directory required><br><br>
+
+        <label>Watermark Image:</label><br>
+        <input type="file" name="watermark"><br><br>
+
+        <input type="checkbox" name="apply_watermark" id="apply_watermark" onchange="toggleOptions()" checked>
+        <label for="apply_watermark">Apply Watermark</label><br>
+
+        <div id="watermark-options">
+            <label>Watermark Fill % (0–100):</label><br>
+            <input type="number" name="fill_pct" value="30" min="0" max="100"><br><br>
+
+            <label>Opacity % (0–100):</label><br>
+            <input type="number" name="opacity_pct" value="50" min="0" max="100"><br><br>
+        </div>
+
+        <input type="checkbox" name="reduce_size" id="reduce_size" onchange="toggleOptions()" checked>
+        <label for="reduce_size">Reduce Size</label><br>
+
+        <div id="resize-options">
+            <label>Reduce Size % (1–100):</label><br>
+            <input type="number" name="reduce_pct" value="60" min="1" max="100"><br><br>
+        </div>
+
+        <label>Output Format:</label><br>
+        <select name="format">
+            <option value="jpg" selected>JPG (Smaller)</option>
+            <option value="png">PNG (Lossless)</option>
+        </select><br><br>
+
+        <button type="submit">Process Images</button>
+    </form>
+</body>
+</html>
