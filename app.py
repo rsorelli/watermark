@@ -6,6 +6,10 @@ from threading import Thread
 from flask import Flask, request, render_template, send_from_directory, jsonify
 from PIL import Image, ImageEnhance
 from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
+
+# Limit to 2 or 3 concurrent threads
+executor = ThreadPoolExecutor(max_workers=3)  # Change to 3 if you want 3 threads
 
 app = Flask(__name__)
 
@@ -147,7 +151,8 @@ def index():
             progress_tracker[session_id]['zip'] = zip_url
             print(f"[DEBUG] Zip ready: {zip_url}")
 
-        Thread(target=process_images).start()
+        #Thread(target=process_images).start()
+        executor.submit(process_images)
 
         return render_template("progress.html", session_id=session_id)
 
