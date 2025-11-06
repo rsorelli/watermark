@@ -1,0 +1,19 @@
+version: '3'
+services:
+  watermark-app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:/app/src
+      - ./src/watermark/static/output:/app/src/watermark/static/output
+      - ./src/watermark/static/zips:/app/src/watermark/static/zips
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

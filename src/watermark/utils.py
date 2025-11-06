@@ -58,17 +58,11 @@ def resize_image(image, scale_pct):
     print(f"[DEBUG] Resizing image to {width}x{height}")
     return image.resize((width, height), Image.Resampling.LANCZOS)
 
-def create_zip(folder_path, zip_folder):
-    """Create a zip file from processed images."""
-    zip_id = str(uuid4())
-    zip_filename = f"{zip_id}.zip"
-    zip_path = os.path.join(zip_folder, zip_filename)
-
+def create_zip(file_list, zip_path):
+    """Create a zip file from a list of files."""
+    os.makedirs(os.path.dirname(zip_path), exist_ok=True)
+    
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, _, files in os.walk(folder_path):
-            for file in files:
-                abs_path = os.path.join(root, file)
-                arcname = os.path.relpath(abs_path, folder_path)
-                zipf.write(abs_path, arcname)
-
-    return zip_filename
+        for file_path in file_list:
+            arcname = os.path.basename(file_path)
+            zipf.write(file_path, arcname)
