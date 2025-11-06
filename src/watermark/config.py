@@ -7,7 +7,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
     
     # ✅ INCREASED: Upload size limits to handle larger batches
-    MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB total request size (was 16MB)
+    MAX_CONTENT_LENGTH = 200 * 1024 * 1024  # 100MB total request size (was 16MB)
     
     CACHE_TYPE = 'simple'
     CACHE_DEFAULT_TIMEOUT = 300
@@ -124,7 +124,7 @@ class Config:
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
     
     # ✅ INCREASED: Individual file size limit
-    MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB per individual file (was 16MB)
+    MAX_FILE_SIZE = 50 * 1024 * 1024  # 20MB per individual file (was 16MB)
     
     # Optional: Set maximum number of files per upload
     MAX_FILES_PER_UPLOAD = 100  # Reasonable limit to prevent abuse
