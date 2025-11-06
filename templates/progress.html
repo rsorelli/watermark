@@ -1,80 +1,320 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>Processing Images...</title>
+    <title>{{ translations[lang]['processing_title'] }}</title>
     <style>
+        :root {
+            --primary-color: #2196F3;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --error-color: #F44336;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 300;
+            font-size: 2.5em;
+        }
+
         #progress-container {
             width: 100%;
-            background-color: #ddd;
-            height: 30px;
-            margin: 20px 0;
-            border-radius: 5px;
+            background-color: #e9ecef;
+            height: 8px;
+            margin: 30px 0;
+            border-radius: 4px;
             overflow: hidden;
+            position: relative;
         }
+
         #progress-bar {
             height: 100%;
             width: 0%;
-            background-color: #4caf50;
-            text-align: center;
-            line-height: 30px;
-            color: white;
+            background: linear-gradient(90deg, var(--primary-color), #64B5F6);
+            position: relative;
             transition: width 0.4s ease;
         }
+
+        #progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0.15) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255,255,255,0.15) 50%,
+                rgba(255,255,255,0.15) 75%,
+                transparent 75%
+            );
+            background-size: 30px 30px;
+            animation: progress-animation 1s linear infinite;
+        }
+
+        @keyframes progress-animation {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 30px 0;
+            }
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        #current-file {
+            font-size: 0.9em;
+            color: #666;
+            margin: 10px 0;
+        }
+
+        #time-remaining {
+            font-size: 0.9em;
+            color: #666;
+            margin: 10px 0;
+        }
+
         #download, #return-button {
             display: none;
             margin-top: 20px;
         }
+
+        #download-link {
+            display: inline-block;
+            background: var(--success-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        #download-link:hover {
+            background: #43A047;
+            transform: translateY(-2px);
+        }
+
+        #return-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        #return-button:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        #language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #language-selector a {
+            text-decoration: none;
+            font-size: 1.5em;
+            padding: 0 5px;
+            transition: transform 0.2s;
+        }
+
+        #language-selector a:hover {
+            transform: scale(1.2);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--error-color); }
+        .toast.warning { background-color: var(--warning-color); }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        #progress-text {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
-    <h1>Processing your images...</h1>
-    <div id="progress-container">
-        <div id="progress-bar">0%</div>
+    <div id="language-selector">
+        <a href="?lang=en">🇺🇸</a> |
+        <a href="?lang=pt">🇧🇷</a>
     </div>
-    <p id="status">Progress: 0%</p>
+
+    <h1>{{ translations[lang]['processing_title'] }}</h1>
+    
+    <div class="status-card">
+        <div class="progress-details">
+            <span id="progress-text">{{ translations[lang]['processing'] }}: 0%</span>
+            <span id="time-remaining">{{ translations[lang]['estimated_time'] }}: --:--</span>
+        </div>
+        
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        
+        <div id="current-file">{{ translations[lang]['processing_file'] }}: --</div>
+    </div>
 
     <p id="download">
-        <a id="download-link" href="#" download>📦 Download your images</a>
+        <a id="download-link" href="#" download>📦 {{ translations[lang]['download_ready'] }}</a>
     </p>
 
-    <button id="return-button" onclick="window.location.href='/'">⬅️ Return to Upload Page</button>
+    <button id="return-button" onclick="window.location.href='/'">⬅️ {{ translations[lang]['return_to_upload'] }}</button>
+
+    <div id="toast" class="toast"></div>
 
     <script>
         const sessionId = "{{ session_id }}";
-        const statusEl = document.getElementById("status");
+        const translations = JSON.parse('{{ translations|tojson|safe }}');
+        const currentLang = "{{ lang }}";
+        const progressTextEl = document.getElementById("progress-text");
+        const timeRemainingEl = document.getElementById("time-remaining");
+        const currentFileEl = document.getElementById("current-file");
         const downloadEl = document.getElementById("download");
         const downloadLink = document.getElementById("download-link");
         const progressBar = document.getElementById("progress-bar");
         const returnButton = document.getElementById("return-button");
+        const toastEl = document.getElementById("toast");
+
+        let startTime = Date.now();
+        let lastProgress = 0;
+
+        function showToast(message, type = 'success') {
+            toastEl.textContent = message;
+            toastEl.className = `toast ${type} show`;
+            setTimeout(() => {
+                toastEl.className = 'toast';
+            }, 3000);
+        }
+
+        function calculateTimeRemaining(progress, total) {
+            if (progress === 0) return '--:--';
+            
+            const elapsed = (Date.now() - startTime) / 1000;
+            const rate = progress / elapsed;
+            const remaining = (total - progress) / rate;
+            
+            const minutes = Math.floor(remaining / 60);
+            const seconds = Math.floor(remaining % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function calculateSpeed(currentProgress, lastProgress) {
+            const timeDiff = 1; // 1 second between checks
+            const progressDiff = currentProgress - lastProgress;
+            return progressDiff / timeDiff;
+        }
+
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        const reconnectDelay = 1000;
 
         async function checkProgress() {
             try {
                 const response = await fetch(`/progress/${sessionId}`);
+                reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
 
                 if (data.status === "not_found") {
-                    statusEl.textContent = "Session not found.";
+                    showToast(translations[currentLang]['session_not_found'], 'error');
                     return;
                 }
 
                 const progress = Math.round((data.done / data.total) * 100);
-                statusEl.textContent = `Progress: ${progress}%`;
+                const speed = calculateSpeed(data.done, lastProgress);
+                lastProgress = data.done;
+
+                progressTextEl.textContent = `${translations[currentLang]['processing']}: ${progress}%`;
                 progressBar.style.width = `${progress}%`;
-                progressBar.textContent = `${progress}%`;
+                
+                if (data.current_file) {
+                    currentFileEl.textContent = `${translations[currentLang]['processing_file']}: ${data.current_file}`;
+                }
+
+                timeRemainingEl.textContent = `${translations[currentLang]['estimated_time']}: ${calculateTimeRemaining(data.done, data.total)}`;
 
                 if (data.zip) {
                     downloadLink.href = data.zip;
                     downloadEl.style.display = "block";
                     returnButton.style.display = "inline-block";
-                    statusEl.textContent = "✅ Processing complete!";
-                    progressBar.style.backgroundColor = "#2196F3";
+                    progressTextEl.textContent = `✅ ${translations[currentLang]['processing_complete']}`;
+                    showToast(translations[currentLang]['processing_complete'], 'success');
+                    progressBar.style.backgroundColor = "#4CAF50";
                 } else {
                     setTimeout(checkProgress, 1000);
                 }
             } catch (error) {
-                statusEl.textContent = "Error checking progress.";
                 console.error(error);
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    showToast(translations[currentLang]['reconnecting'], 'warning');
+                    setTimeout(checkProgress, reconnectDelay * reconnectAttempts);
+                } else {
+                    showToast(translations[currentLang]['connection_lost'], 'error');
+                }
             }
         }
 
