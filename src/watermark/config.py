@@ -127,4 +127,4 @@ class Config:
     MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB per individual file (was 16MB)
     
     # Optional: Set maximum number of files per upload
-    MAX_FILES_PER_UPLOAD = 20  # Reasonable limit to prevent abuse
+    MAX_FILES_PER_UPLOAD = 100  # Reasonable limit to prevent abuse
