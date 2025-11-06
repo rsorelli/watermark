@@ -73,17 +73,16 @@ def register_routes(app):
                         'content': content
                     })
                 
-                # Process watermark if provided
+                # Process watermark if provided - ACCEPT ANY FILE TYPE
                 watermark_bytes = None
                 if 'watermark' in request.files and request.files['watermark'].filename:
                     try:
                         watermark_file = request.files['watermark']
-                        validate_file(
-                            watermark_file,
-                            app.config['ALLOWED_EXTENSIONS'],
-                            app.config['MAX_FILE_SIZE']
-                        )
-                        watermark_bytes = watermark_file.read()
+                        # Only check file size for watermark, accept any file type
+                        content = watermark_file.read()
+                        if len(content) > app.config['MAX_FILE_SIZE']:
+                            raise ValueError(f"Watermark file too large. Maximum size: {app.config['MAX_FILE_SIZE']/1024/1024}MB")
+                        watermark_bytes = content
                     except Exception as e:
                         return jsonify({"error": f"Watermark error: {str(e)}"}), 400
                 
