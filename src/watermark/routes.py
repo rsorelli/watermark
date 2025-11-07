@@ -1,6 +1,5 @@
 """Application routes and views."""
 from flask import render_template, request, jsonify, session, redirect, url_for, send_from_directory, current_app
-from flask_limiter import exempt
 from uuid import uuid4
 from datetime import datetime
 from PIL import Image
@@ -208,7 +207,7 @@ def register_routes(app, limiter):
                 return jsonify({"error": translations.get("unexpected_error", "An error occurred")}), 500
 
     @app.route('/progress/<session_id>')
-    @limiter.exempt
+    @limiter.exempt  # Exempt this endpoint from rate limiting
     def get_progress(session_id):
         """Get progress for a specific session"""
         try:

@@ -24,7 +24,8 @@ def create_app(config_class=Config):
     limiter = Limiter(
         app=app,
         key_func=get_remote_address,
-        default_limits=["200 per day", "50 per hour"]
+        default_limits=["200 per day", "50 per hour"],
+        storage_uri="memory://"
     )
     
     app.cache = Cache(app)
@@ -35,7 +36,7 @@ def create_app(config_class=Config):
     os.makedirs(app.config['ZIP_FOLDER'], exist_ok=True)
 
     # Register routes
-    register_routes(app,limiter)
+    register_routes(app, limiter)
 
     # Setup scheduler
     setup_scheduler(app)
