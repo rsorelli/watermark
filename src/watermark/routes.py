@@ -1,5 +1,6 @@
 """Application routes and views."""
 from flask import render_template, request, jsonify, session, redirect, url_for, send_from_directory, current_app
+from flask_limiter import exempt
 from uuid import uuid4
 from datetime import datetime
 from PIL import Image
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 # Global progress tracker - shared across all requests
 progress_tracker = {}
 
-def register_routes(app):
+def register_routes(app, limiter):
     """Register all application routes."""
     
     @app.route('/language/<lang>', methods=['GET', 'POST'])
@@ -207,6 +208,7 @@ def register_routes(app):
                 return jsonify({"error": translations.get("unexpected_error", "An error occurred")}), 500
 
     @app.route('/progress/<session_id>')
+    @limiter.exempt
     def get_progress(session_id):
         """Get progress for a specific session"""
         try:

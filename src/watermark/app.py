@@ -35,7 +35,7 @@ def create_app(config_class=Config):
     os.makedirs(app.config['ZIP_FOLDER'], exist_ok=True)
 
     # Register routes
-    register_routes(app)
+    register_routes(app,limiter)
 
     # Setup scheduler
     setup_scheduler(app)
